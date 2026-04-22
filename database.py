@@ -1,9 +1,12 @@
 # database.py
-# Author: Bikram Singh
 import sqlite3
+import os
 
 def create_connection():
-    # Naya database name taaki purani error wali file se koi lafda na rahe
+    # 1. Pehle check karo ki 'data' folder hai ya nahi, agar nahi toh bana do
+    os.makedirs('data', exist_ok=True)
+    
+    # 2. Ab safely database file connect/create karo
     conn = sqlite3.connect('data/health_database_v2.db')
     return conn
 
@@ -11,7 +14,7 @@ def create_tables():
     conn = create_connection()
     c = conn.cursor()
     
-    # Users Table (Exactly 5 columns: email, phone, dob, username, password)
+    # Users Table
     c.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,13 +44,12 @@ def add_user(email, phone, dob, username, password):
     conn = create_connection()
     c = conn.cursor()
     try:
-        # Exactly 5 values ja rahi hain table mein
         c.execute('INSERT INTO users (email, phone, dob, username, password) VALUES (?, ?, ?, ?, ?)', 
                   (email, phone, dob, username, password))
         conn.commit()
         return True
     except sqlite3.IntegrityError:
-        return False  # Jab username pehle se exist karta ho
+        return False 
     finally:
         conn.close()
 
